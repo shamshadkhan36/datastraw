@@ -1,1 +1,1 @@
-web: gunicorn crm_project.wsgi:application
+web: python manage.py collectstatic --noinput && python manage.py migrate && gunicorn crm_project.wsgi:application
