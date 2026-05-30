@@ -1,0 +1,121 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Agent Workspace | Datastraw CRM{% endblock %}</title>
+    
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Theme Stylesheet -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- App Container -->
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-logo">
+                    <i class="fa-solid fa-square-poll-horizontal glow-icon"></i>
+                </div>
+                <div class="brand-text">
+                    <h2>datastraw</h2>
+                    <span>Support CRM</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <a href="{% url 'dashboard' %}" class="menu-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{% url 'create_ticket' %}" class="menu-item {% if request.resolver_match.url_name == 'create_ticket' %}active{% endif %}">
+                    <i class="fa-solid fa-circle-plus"></i>
+                    <span>New Ticket</span>
+                </a>
+                <a href="/admin/" target="_blank" class="menu-item">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span>Django Admin</span>
+                </a>
+            </nav>
+            
+            <!-- Sidebar Footer -->
+            <div class="sidebar-footer">
+                <div class="agent-profile">
+                    <div class="avatar">DS</div>
+                    <div class="agent-info">
+                        <h4>Datastraw Agent</h4>
+                        <span class="status-indicator online">Online</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace Area -->
+        <main class="main-content">
+            <!-- Top Workspace Header -->
+            <header class="workspace-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+                </div>
+                <div class="header-right">
+                    <div class="datetime-display" id="liveClock">
+                        <i class="fa-regular fa-clock"></i>
+                        <span>Loading date/time...</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Body -->
+            <div class="workspace-body">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Main JavaScript Hooks -->
+    <script>
+        // Simple client-side clock script for the header (adds a nice dynamic touch)
+        function updateClock() {
+            const clockEl = document.getElementById('liveClock');
+            if (clockEl) {
+                const now = new Date();
+                const options = { 
+                    weekday: 'short', 
+                    month: 'short', 
+                    day: 'numeric', 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    second: '2-digit'
+                };
+                clockEl.querySelector('span').textContent = now.toLocaleDateString('en-US', options);
+            }
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Responsive sidebar toggle
+        const toggleBtn = document.getElementById('sidebarToggle');
+        const sidebar = document.querySelector('.sidebar');
+        if (toggleBtn && sidebar) {
+            toggleBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+            });
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,150 @@
+{% extends 'tickets/base.html' %}
+{% load static %}
+
+{% block title %}Ticket #{{ ticket.ticket_id }} | Datastraw Support CRM{% endblock %}
+{% block page_title %}Ticket Details{% endblock %}
+
+{% block content %}
+<div class="detail-container-grid">
+    <!-- Main Left: Ticket Information -->
+    <div class="detail-main-column">
+        <!-- Ticket Card Panel -->
+        <div class="crm-panel card-panel-detail">
+            <!-- Header section of detail -->
+            <div class="detail-panel-header">
+                <div class="detail-header-left">
+                    <span class="detail-id-tag">#{{ ticket.ticket_id }}</span>
+                    <span class="status-pill status-{{ ticket.status|lower }}" id="ticketStatusPill">{{ ticket.status }}</span>
+                </div>
+                <a href="{% url 'dashboard' %}" class="back-link">
+                    <i class="fa-solid fa-arrow-left-long"></i> Back to List
+                </a>
+            </div>
+
+            <!-- Subject & Content -->
+            <div class="detail-body-content">
+                <h2 class="detail-subject" id="ticketSubject">{{ ticket.subject }}</h2>
+                <div class="detail-meta-row">
+                    <span class="detail-meta-item">
+                        <i class="fa-regular fa-calendar-plus"></i> Opened: 
+                        <span data-utc="{{ ticket.created_at.isoformat }}">{{ ticket.created_at|date:"M d, Y, h:i A" }}</span>
+                    </span>
+                    <span class="detail-meta-item">
+                        <i class="fa-regular fa-clock"></i> Updated: 
+                        <span id="ticketUpdatedAt" data-utc="{{ ticket.updated_at.isoformat }}">{{ ticket.updated_at|date:"M d, Y, h:i A" }}</span>
+                    </span>
+                </div>
+
+                <hr class="divider-line">
+
+                <!-- Detailed Description -->
+                <div class="detail-description-wrapper">
+                    <h4>Description</h4>
+                    <p class="detail-description-text">{{ ticket.description|linebreaksbr }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Card -->
+        <div class="crm-panel customer-card-detail">
+            <div class="panel-header-sub">
+                <h3><i class="fa-regular fa-address-card"></i> Customer Information</h3>
+            </div>
+            <div class="customer-fields-grid">
+                <div class="customer-field">
+                    <span class="field-label">Name</span>
+                    <span class="field-value">{{ ticket.customer_name }}</span>
+                </div>
+                <div class="customer-field">
+                    <span class="field-label">Email Address</span>
+                    <span class="field-value">
+                        <a href="mailto:{{ ticket.customer_email }}" class="email-link">
+                            {{ ticket.customer_email }} <i class="fa-regular fa-envelope"></i>
+                        </a>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Right: Ticket Management & Timeline -->
+    <div class="detail-sidebar-column">
+        <!-- Quick Actions Panel -->
+        <div class="crm-panel actions-panel-detail">
+            <h3>Ticket Status Manager</h3>
+            <p>Update the status of this ticket to reflect progress.</p>
+            
+            <div class="status-selector-wrapper">
+                <select id="statusSelector" class="form-control status-select-control">
+                    {% for val, label in status_choices %}
+                        <option value="{{ val }}" {% if ticket.status == val %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <button id="updateStatusBtn" class="btn btn-primary btn-block">
+                    <i class="fa-solid fa-floppy-disk"></i> Update Status
+                </button>
+            </div>
+            
+            <div id="statusAlert" class="alert alert-success mt-2 hidden">
+                <i class="fa-solid fa-circle-check"></i> Status updated successfully!
+            </div>
+        </div>
+
+        <!-- Notes / Collaboration Timeline -->
+        <div class="crm-panel notes-timeline-panel">
+            <h3>Activity & Notes</h3>
+            <p>Internal agent collaboration log for this ticket.</p>
+            
+            <div class="timeline-container" id="notesTimeline">
+                {% if notes %}
+                    {% for note in notes %}
+                    <div class="timeline-item">
+                        <div class="timeline-badge">
+                            <i class="fa-solid fa-user-pen"></i>
+                        </div>
+                        <div class="timeline-card">
+                            <div class="timeline-header">
+                                <span class="timeline-author">Agent Note</span>
+                                <span class="timeline-time" data-utc="{{ note.created_at.isoformat }}">{{ note.created_at|date:"M d, Y, h:i A" }}</span>
+                            </div>
+                            <div class="timeline-body">
+                                <p>{{ note.note_text|linebreaksbr }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-timeline-state" id="emptyTimelineState">
+                        <i class="fa-regular fa-comment-dots"></i>
+                        <p>No agent notes recorded yet. Add comments below to start collaboration.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <hr class="divider-line">
+
+            <!-- New Note Box -->
+            <div class="note-input-wrapper">
+                <h4>Add Internal Note</h4>
+                <textarea id="newNoteText" class="form-control" rows="3" placeholder="Type an internal note, update, or action taken..."></textarea>
+                <div class="note-submit-actions">
+                    <span class="character-count" id="charCount">0 characters</span>
+                    <button id="submitNoteBtn" class="btn btn-secondary">
+                        <i class="fa-solid fa-comment-medical"></i> Add Note
+                    </button>
+                </div>
+                <div id="noteAlert" class="alert alert-error mt-2 hidden"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Context variable to safely provide Django values to static JS -->
+<script>
+    window.ticketId = "{{ ticket.ticket_id }}";
+    window.csrfToken = "{{ csrf_token }}";
+</script>
+<script src="{% static 'js/detail.js' %}"></script>
+{% endblock %}

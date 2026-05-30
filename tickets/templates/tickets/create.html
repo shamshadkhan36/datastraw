@@ -1,0 +1,102 @@
+{% extends 'tickets/base.html' %}
+{% load static %}
+
+{% block title %}Create Ticket | Datastraw Support CRM{% endblock %}
+{% block page_title %}New Support Ticket{% endblock %}
+
+{% block content %}
+<div class="form-panel-wrapper">
+    <!-- Form Card Panel -->
+    <div class="crm-panel form-panel">
+        <div class="panel-header">
+            <div class="header-desc">
+                <h3>Customer Ticket Intake</h3>
+                <p>Register a new support ticket in the CRM. Complete all customer contact information and issue details below.</p>
+            </div>
+            <a href="{% url 'dashboard' %}" class="back-link">
+                <i class="fa-solid fa-arrow-left-long"></i> Back to Dashboard
+            </a>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-error">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>{{ error }}</span>
+        </div>
+        {% endif %}
+
+        <form action="{% url 'create_ticket' %}" method="POST" id="createTicketForm" class="crm-form">
+            {% csrf_token %}
+            
+            <div class="form-grid">
+                <!-- Customer Name -->
+                <div class="form-group">
+                    <label for="customer_name" class="form-label">
+                        <i class="fa-regular fa-user"></i> Customer Name
+                    </label>
+                    <input type="text" 
+                           id="customer_name" 
+                           name="customer_name" 
+                           class="form-control" 
+                           placeholder="John Doe" 
+                           value="{{ values.customer_name|default:'' }}"
+                           required>
+                    <span class="help-text">Enter the customer's full legal or preferred name.</span>
+                </div>
+
+                <!-- Customer Email -->
+                <div class="form-group">
+                    <label for="customer_email" class="form-label">
+                        <i class="fa-regular fa-envelope"></i> Customer Email
+                    </label>
+                    <input type="email" 
+                           id="customer_email" 
+                           name="customer_email" 
+                           class="form-control" 
+                           placeholder="john.doe@example.com" 
+                           value="{{ values.customer_email|default:'' }}"
+                           required>
+                    <span class="help-text">We'll use this email for ticket status updates and communications.</span>
+                </div>
+            </div>
+
+            <!-- Subject -->
+            <div class="form-group">
+                <label for="subject" class="form-label">
+                    <i class="fa-regular fa-bookmark"></i> Subject / Issue Title
+                </label>
+                <input type="text" 
+                       id="subject" 
+                       name="subject" 
+                       class="form-control" 
+                       placeholder="e.g. Cannot complete checkout checkout page keeps reloading" 
+                       value="{{ values.subject|default:'' }}"
+                       required>
+                <span class="help-text">Provide a concise, descriptive title outlining the customer's core problem.</span>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+                <label for="description" class="form-label">
+                    <i class="fa-regular fa-file-lines"></i> Detailed Description
+                </label>
+                <textarea id="description" 
+                          name="description" 
+                          class="form-control" 
+                          rows="6" 
+                          placeholder="Describe the issue step-by-step, including error messages, system details, and troubleshooting done so far..." 
+                          required>{{ values.description|default:'' }}</textarea>
+                <span class="help-text">Provide as much detail as possible to help agents resolve this quickly.</span>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-paper-plane"></i> Save & Open Ticket
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
