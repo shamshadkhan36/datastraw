@@ -8,9 +8,14 @@ def create_superuser(apps, schema_editor):
     # Retrieve credentials from environment variables, or use sensible defaults
     username = os.getenv('DJANGO_SUPERUSER_USERNAME', 'admin')
     email = os.getenv('DJANGO_SUPERUSER_EMAIL', 'admin@example.com')
-    password = os.getenv('DJANGO_SUPERUSER_PASSWORD', 'admin123')
+    password = os.getenv('DJANGO_SUPERUSER_PASSWORD', 'adminpassword')
     
-    if not User.objects.filter(username=username).exists():
+    try:
+        user = User.objects.get(username=username)
+        user.set_password(password)
+        user.save()
+        print(f"\n>>> Updated password for superuser '{username}'.")
+    except User.DoesNotExist:
         User.objects.create_superuser(username=username, email=email, password=password)
         print(f"\n>>> Created superuser '{username}' successfully.")
 
