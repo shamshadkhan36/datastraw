@@ -29,6 +29,18 @@ DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 't')
 # ALLOWED_HOSTS is split by comma
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',') if os.getenv('ALLOWED_HOSTS') else ['*']
 
+# CSRF_TRUSTED_ORIGINS is split by comma (should include scheme, e.g., https://datastraw-production-73e9.up.railway.app)
+# If not explicitly defined, we dynamically derive it from ALLOWED_HOSTS for zero-config deployments.
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if os.getenv('CSRF_TRUSTED_ORIGINS') else []
+if not CSRF_TRUSTED_ORIGINS:
+    for host in ALLOWED_HOSTS:
+        if host and host != '*':
+            if host.startswith('.'):
+                CSRF_TRUSTED_ORIGINS.extend([f"https://*{host}", f"http://*{host}"])
+            else:
+                CSRF_TRUSTED_ORIGINS.extend([f"https://{host}", f"http://{host}"])
+
+
 
 # Application definition
 
